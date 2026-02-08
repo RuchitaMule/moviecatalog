@@ -106,7 +106,14 @@ Example validation error response:
 "genre": "Genre is required"
 }
 ```
+### 3. Get All Movies
+***GET*** /api/movies
 
+Response:
+
+200 OK
+
+Returns list of all movies
 Data Storage
 
 No database is used
@@ -123,7 +130,7 @@ The application is deployed on Render, which supports Java Spring Boot
 backend services.
 
 Live Application URL:
-https://<your-app-name>.onrender.com
+https://moviecatalog-xfl4.onrender.com
 
 Example API:
-POST https://<your-app-name>.onrender.com/api/movies
+POST https://moviecatalog-xfl4.onrender.com/api/movies

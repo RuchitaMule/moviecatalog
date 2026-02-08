@@ -46,8 +46,7 @@ com.example.moviecatalog
 
 ### Steps
 1. Clone the repository:
-   git clone https://github.com/
-   <your-username>/moviecatalog.git
+   git clone https://github.com/RuchitaMule/moviecatalog.git
 2. Navigate to the project directory:
    cd moviecatalog
 3. Run the application:

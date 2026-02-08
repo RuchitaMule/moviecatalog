@@ -86,6 +86,14 @@ Status: 200 OK
 
 Returns movie details in JSON format
 
+### 3. Get All Movies
+***GET*** /api/movies
+
+Response:
+
+200 OK
+
+
 ### Validation & Error Handling
 
 Input validation is implemented using Bean Validation annotations
@@ -106,12 +114,6 @@ Example validation error response:
 "genre": "Genre is required"
 }
 ```
-### 3. Get All Movies
-***GET*** /api/movies
-
-Response:
-
-200 OK
 
 Returns list of all movies
 Data Storage

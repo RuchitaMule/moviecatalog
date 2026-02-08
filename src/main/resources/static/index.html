@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Catalog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f4f6f8;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 300px;
+        }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .movie {
+            background: white;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<h1> Movie Catalog</h1>
+
+<h3>Add Movie</h3>
+<input id="name" placeholder="Movie Name"><br>
+<input id="description" placeholder="Description"><br>
+<input id="genre" placeholder="Genre"><br>
+<input id="year" placeholder="Release Year"><br>
+<button onclick="addMovie()">Add Movie</button>
+
+<h3>Get Movie by ID</h3>
+<input id="movieId" placeholder="Movie ID"><br>
+<button onclick="getMovie()">Get Movie</button>
+
+<div id="result"></div>
+
+<script>
+    const baseUrl = "/api/movies";
+
+    function addMovie() {
+        fetch(baseUrl, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: document.getElementById("name").value,
+                description: document.getElementById("description").value,
+                genre: document.getElementById("genre").value,
+                releaseYear: parseInt(document.getElementById("year").value)
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("result").innerHTML =
+                `<div class="movie">Movie added with ID: ${data.id}</div>`;
+        });
+    }
+
+    function getMovie() {
+        const id = document.getElementById("movieId").value;
+        fetch(`${baseUrl}/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("result").innerHTML =
+                    `<div class="movie">
+                        <b>${data.name}</b><br>
+                        ${data.description}<br>
+                        Genre: ${data.genre}<br>
+                        Year: ${data.releaseYear}
+                    </div>`;
+            });
+    }
+</script>
+
+</body>
+</html>

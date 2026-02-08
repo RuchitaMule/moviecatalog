@@ -3,85 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <title>Movie Catalog</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 40px;
-            background: #f4f6f8;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 40px;
         }
+
         h1 {
-            color: #333;
+            color: #2c3e50;
         }
-        input, button {
+
+        h3 {
+            margin-top: 30px;
+            color: #34495e;
+        }
+
+        input {
             padding: 8px;
-            margin: 5px 0;
-            width: 300px;
+            margin: 6px 0;
+            width: 320px;
+            display: block;
         }
+
         button {
-            background: #1976d2;
+            padding: 8px 16px;
+            margin-top: 10px;
+            background-color: #1976d2;
             color: white;
             border: none;
             cursor: pointer;
-        }
-        .movie {
-            background: white;
-            padding: 10px;
-            margin-top: 10px;
             border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #125ea6;
+        }
+
+        .movie {
+            background-color: white;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 6px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .error {
+            color: red;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+            margin-top: 12px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <h1> Movie Catalog</h1>
+<p>Simple UI to interact with Movie Catalog REST API</p>
 
+<!-- ADD MOVIE -->
 <h3>Add Movie</h3>
-<input id="name" placeholder="Movie Name"><br>
-<input id="description" placeholder="Description"><br>
-<input id="genre" placeholder="Genre"><br>
-<input id="year" placeholder="Release Year"><br>
+<input id="name" placeholder="Movie Name">
+<input id="description" placeholder="Description">
+<input id="genre" placeholder="Genre">
+<input id="year" placeholder="Release Year">
 <button onclick="addMovie()">Add Movie</button>
 
-<h3>Get Movie by ID</h3>
-<input id="movieId" placeholder="Movie ID"><br>
-<button onclick="getMovie()">Get Movie</button>
+<!-- SHOW ALL MOVIES -->
+<h3>All Movies</h3>
+<button onclick="getAllMovies()">Show All Movies</button>
 
+<!-- GET MOVIE BY ID -->
+<h3>Get Movie by ID</h3>
+<input id="movieId" placeholder="Movie ID">
+<button onclick="getMovieById()">Get Movie</button>
+
+<!-- RESULT -->
 <div id="result"></div>
 
 <script>
     const baseUrl = "/api/movies";
 
     function addMovie() {
+        const name = document.getElementById("name").value.trim();
+        const description = document.getElementById("description").value.trim();
+        const genre = document.getElementById("genre").value.trim();
+        const year = document.getElementById("year").value.trim();
+
+        // Frontend validation
+        if (!name || !description || !genre || !year) {
+            showError("All fields are required.");
+            return;
+        }
+
+        if (isNaN(year) || year < 1900) {
+            showError("Release year must be a valid number (>= 1900).");
+            return;
+        }
+
+        const movie = {
+            name: name,
+            description: description,
+            genre: genre,
+            releaseYear: parseInt(year)
+        };
+
         fetch(baseUrl, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                name: document.getElementById("name").value,
-                description: document.getElementById("description").value,
-                genre: document.getElementById("genre").value,
-                releaseYear: parseInt(document.getElementById("year").value)
-            })
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(movie)
         })
-        .then(res => res.json())
+        .then(async response => {
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw errorData;
+            }
+            return response.json();
+        })
         .then(data => {
             document.getElementById("result").innerHTML =
-                `<div class="movie">Movie added with ID: ${data.id}</div>`;
+                `<div class="success">
+                     Movie added successfully! <br>
+                    Movie ID: ${data.id}
+                </div>`;
+            clearInputs();
+        })
+        .catch(error => {
+            if (typeof error === "object") {
+                let msg = "";
+                for (const key in error) {
+                    msg += error[key] + "<br>";
+                }
+                showError(msg);
+            } else {
+                showError("Failed to add movie.");
+            }
         });
     }
 
-    function getMovie() {
-        const id = document.getElementById("movieId").value;
+    function getMovieById() {
+        const id = document.getElementById("movieId").value.trim();
+
+        if (!id) {
+            showError("Please enter a movie ID.");
+            return;
+        }
+
         fetch(`${baseUrl}/${id}`)
-            .then(res => res.json())
-            .then(data => {
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Movie not found");
+                }
+                return response.json();
+            })
+            .then(movie => {
                 document.getElementById("result").innerHTML =
                     `<div class="movie">
-                        <b>${data.name}</b><br>
-                        ${data.description}<br>
-                        Genre: ${data.genre}<br>
-                        Year: ${data.releaseYear}
+                        <b>${movie.name}</b><br>
+                        ${movie.description}<br>
+                        Genre: ${movie.genre}<br>
+                        Year: ${movie.releaseYear}<br>
+                        ID: ${movie.id}
                     </div>`;
+            })
+            .catch(() => {
+                showError("Movie not found.");
             });
+    }
+
+    function getAllMovies() {
+        fetch(baseUrl)
+            .then(response => response.json())
+            .then(movies => {
+                if (movies.length === 0) {
+                    showError("No movies available.");
+                    return;
+                }
+
+                let html = "";
+                movies.forEach(movie => {
+                    html += `
+                        <div class="movie">
+                            <b>${movie.name}</b><br>
+                            ${movie.description}<br>
+                            Genre: ${movie.genre}<br>
+                            Year: ${movie.releaseYear}<br>
+                            ID: ${movie.id}
+                        </div>
+                    `;
+                });
+                document.getElementById("result").innerHTML = html;
+            });
+    }
+
+    function showError(message) {
+        document.getElementById("result").innerHTML =
+            `<div class="error"> ${message}</div>`;
+    }
+
+    function clearInputs() {
+        document.getElementById("name").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("genre").value = "";
+        document.getElementById("year").value = "";
     }
 </script>
 

@@ -6,6 +6,8 @@ import com.example.moviecatalog.repository.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MovieService {
 
@@ -25,4 +27,8 @@ public class MovieService {
                 .orElseThrow(() -> new MovieNotFoundException(id));
 
     }
+    public List<Movie> getAllMovies() {
+        return movieRepository.findAll();
+    }
+
 }

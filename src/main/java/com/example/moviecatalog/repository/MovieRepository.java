@@ -24,4 +24,9 @@ public class MovieRepository {
                 .filter(movie -> movie.getId().equals(id))
                 .findFirst();
     }
+
+    public List<Movie> findAll() {
+        return movies;
+    }
+
 }
